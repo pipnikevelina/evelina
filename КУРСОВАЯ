@@ -1,0 +1,53 @@
+import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from nltk.probability import FreqDist
+from nltk.stem import SnowballStemmer
+from nltk.sentiment import SentimentIntensityAnalyzer
+
+# Загрузка русского словаря стоп-слов
+stop_words = set(stopwords.words('russian'))
+
+# Создание экземпляра стемера для русского языка
+stemmer = SnowballStemmer("russian")
+
+# Создание экземпляра анализатора тональности
+sia = SentimentIntensityAnalyzer()
+
+def analyze_text(text):
+
+
+    # Токенизация текста
+    tokens = word_tokenize(text)
+
+    # Удаление стоп-слов
+    filtered_tokens = [token for token in tokens if token.lower() not in stop_words]
+
+    # Стемминг слов
+    stemmed_tokens = [stemmer.stem(token) for token in filtered_tokens]
+
+    # Частотный анализ
+    word_frequencies = FreqDist(stemmed_tokens)
+
+    # Выбор ключевых слов по частоте
+    keywords = [word for word, freq in word_frequencies.most_common(10)]
+
+    # Анализ тональности
+    sentiment = sia.polarity_scores(text)
+
+    return {
+        "keywords": keywords,
+        "sentiment": sentiment,
+        "word_frequencies": word_frequencies
+    }
+
+# Ввод текста пользователем
+text = input("Введите русский текст для анализа: ")
+
+# Анализ текста
+analysis = analyze_text(text)
+
+# Вывод результатов
+print("Ключевые слова:", analysis["keywords"])
+print("Тональность:", analysis["sentiment"])
+print("Частота слов:", analysis["word_frequencies"])
